@@ -15,14 +15,12 @@ Data: 30/06/2022
 #include <stdio.h>
 #define MAX 100
 
-/*********************************************************/
 typedef int TipoChave;
 typedef int Tipo;
 
 typedef struct
 {
     TipoChave Chave;
-    /* outros componentes */
     Tipo tipo;
     int numElementos;
     double pontoMedio;
@@ -90,19 +88,6 @@ void Imprime(TipoLista Lista)
         Aux = Aux->Prox;
     }
 }
-
-/*********************************************************/
-typedef struct Elemento
-{
-    int number;
-    int quantity;
-
-    Elemento(int number, int quantity)
-    {
-        this->number = number;
-        this->quantity = quantity;
-    }
-} Elemento;
 
 TipoItem geraItem(TipoChave chave, Tipo tipo, int nElementos, double pontoMedio)
 {
@@ -174,7 +159,6 @@ bool verificaSequencia(TipoLista lista)
             return true;
         }
 
-        //std::cout << "Contador: " << contador << std::endl;
         Aux = Aux->Prox;
     }
 
@@ -183,11 +167,6 @@ bool verificaSequencia(TipoLista lista)
 
 int main()
 {
-    std::string fileName;
-    std::ifstream file; // Ler o vetor do arquivo
-    int n, counter = 0; // numero de elementos
-    int previousElement, actualElement;
-
     std::map<int, int> colors;
     colors.insert(std::pair<int, int>(0, 1));
     colors.insert(std::pair<int, int>(128, 2));
@@ -196,43 +175,44 @@ int main()
     TipoLista lista;
     FLVazia(&lista);
 
+    std::string nomeArquivo;
     std::cout << "Digite o nome do arquivo: ";
-    std::cin >> fileName;
+    std::cin >> nomeArquivo;
 
-    file.open(fileName);
-    file >> n;
+    std::ifstream arquivo;
+    int n;
+    arquivo.open(nomeArquivo);
+    arquivo >> n;
 
-    file >> actualElement; // leitura do primeiro elemento do vetor que é o tamanho
-    previousElement = actualElement;
-
-    //std::cout << actualElement << " ";
-
-    int repeatCounter = 1;
+    int contadorIds = 0;
+    int elementoAtual;
+    arquivo >> elementoAtual;
     for (int i = 1; i < n; i++)
     {
-        file >> actualElement; // leitura do vetor a partir do segundo elemento
-        //std::cout << actualElement << " ";
-
-        if (previousElement != actualElement) // if se trocou o seguimento
+        int contadorRepeticoes = 1;
+        int proximoElemento;
+        while (arquivo >> proximoElemento)
         {
-            TipoItem item = geraItem(counter, colors[previousElement], repeatCounter, 0);
-            Insere(item, &lista);
-            counter++;
-            repeatCounter = 1;
-        }
-        else
-        {
-            repeatCounter = repeatCounter + 1;
+            if (proximoElemento == elementoAtual)
+            {
+                contadorRepeticoes++;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        previousElement = actualElement;
+        TipoItem item = geraItem(contadorIds, colors[elementoAtual], contadorRepeticoes, 0);
+        Insere(item, &lista);
+        contadorIds++;
+
+        elementoAtual = proximoElemento;
+        i = i + contadorRepeticoes - 1;
     }
-    //std::cout << std::endl;
-    TipoItem item = geraItem(counter, colors[previousElement], repeatCounter, 0);
-    Insere(item, &lista);
 
-    // std::cout << "Lista: " << std::endl;
-    // Imprime(lista);
+    std::cout << "Lista: " << std::endl;
+    Imprime(lista);
 
     if (verificaSequencia(lista))
     {
