@@ -11,26 +11,21 @@ Data: 30/06/2022
 ****************/
 
 #include <bits/stdc++.h>
-#include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#define MAX 10
+#define MAX 100
 
 /*********************************************************/
-// Ziviani
-
 typedef int TipoChave;
 typedef int Tipo;
-typedef int NumElementos;
-typedef int PontoMedio;
 
 typedef struct
 {
-    int Chave;
+    TipoChave Chave;
     /* outros componentes */
     Tipo tipo;
-    NumElementos numElementos;
-    PontoMedio pontoMedio;
+    int numElementos;
+    double pontoMedio;
 } TipoItem;
 
 typedef struct TipoCelula *TipoApontador;
@@ -90,13 +85,13 @@ void Imprime(TipoLista Lista)
     Aux = Lista.Primeiro->Prox;
     while (Aux != NULL)
     {
-        printf("%d\n", Aux->Item.Chave);
+        printf("Chave: %d, Numero de elementos: %d, Tipo: %d, Ponto Medio: %.2lf \n",
+               Aux->Item.Chave, Aux->Item.numElementos, Aux->Item.tipo, Aux->Item.pontoMedio);
         Aux = Aux->Prox;
     }
 }
 
 /*********************************************************/
-
 typedef struct Elemento
 {
     int number;
@@ -109,12 +104,97 @@ typedef struct Elemento
     }
 } Elemento;
 
+TipoItem geraItem(TipoChave chave, Tipo tipo, int nElementos, double pontoMedio)
+{
+    TipoItem item;
+    item.Chave = chave;
+    item.numElementos = nElementos;
+    item.tipo = tipo;
+    item.pontoMedio = pontoMedio;
+    return item;
+}
+
+/**
+ *
+ * Se uma
+linha possuir N elementos (pixels), de 0 a N-1, então o ponto médio do segmento será (p+q)/2,
+onde p e q são as posições do início e do fim do segmento. Outros campos poderão ser
+adicionados, se necessário.
+
+ */
+/* double PontoMedio(TipoItem item, TipoLista lista){
+//     // encontrar quantos elementos tem até chegar nesse item
+//     // item.chave
+        int p = 0, q = 0;
+        TipoApontador Aux;
+       int pontoMedio;
+       Aux = Lista.Primeiro->Prox;
+        if(lista.Chave == item.Chave)
+        {
+            p->Aux;
+        }
+        while (Aux != NULL)
+        {
+         Aux = Aux->Prox;
+        }
+        if(lista.Chave == item.Chave)
+        {
+            p->Aux;
+        }
+     pontoMedio = q+p/2;
+     return pontoMedio;
+ } */
+
+bool verificaSequencia(TipoLista lista)
+{
+    std::array<int, 5> sequencia = {1, 3, 2, 3, 1};
+    int contador = 0;
+
+    TipoApontador Aux;
+    Aux = lista.Primeiro->Prox;
+
+    while (Aux != NULL)
+    {
+        Tipo tipo = Aux->Item.tipo;
+        if (tipo == sequencia[contador])
+        {
+            contador++;
+        }
+        else
+        {
+            contador = 0;
+            if (tipo == sequencia[contador])
+            {
+                contador++;
+            }
+        }
+
+        if (contador == 5)
+        {
+            return true;
+        }
+
+        //std::cout << "Contador: " << contador << std::endl;
+        Aux = Aux->Prox;
+    }
+
+    return false;
+}
+
 int main()
 {
     std::string fileName;
-    std::ifstream file;
-    int n; // numero de elementos
+    std::ifstream file; // Ler o vetor do arquivo
+    int n, counter = 0; // numero de elementos
     int previousElement, actualElement;
+
+    std::map<int, int> colors;
+    colors.insert(std::pair<int, int>(0, 1));
+    colors.insert(std::pair<int, int>(128, 2));
+    colors.insert(std::pair<int, int>(255, 3));
+
+    TipoLista lista;
+    FLVazia(&lista);
 
     std::cout << "Digite o nome do arquivo: ";
     std::cin >> fileName;
@@ -122,28 +202,23 @@ int main()
     file.open(fileName);
     file >> n;
 
-    std::vector<Elemento> elements; // para guardar as repeticoes
-    std::map<int, int> segmentsMap; // para guardar qual numero tem qual segmento
-    std::set<int> values;
-
-    file >> actualElement;
+    file >> actualElement; // leitura do primeiro elemento do vetor que é o tamanho
     previousElement = actualElement;
-    values.insert(actualElement);
+
+    //std::cout << actualElement << " ";
 
     int repeatCounter = 1;
     for (int i = 1; i < n; i++)
     {
-        file >> actualElement;
+        file >> actualElement; // leitura do vetor a partir do segundo elemento
+        //std::cout << actualElement << " ";
 
-        if (previousElement != actualElement)
+        if (previousElement != actualElement) // if se trocou o seguimento
         {
-            elements.push_back(Elemento(previousElement, repeatCounter));
-
+            TipoItem item = geraItem(counter, colors[previousElement], repeatCounter, 0);
+            Insere(item, &lista);
+            counter++;
             repeatCounter = 1;
-            if (values.find(actualElement) == values.end())
-            {
-                values.insert(actualElement);
-            }
         }
         else
         {
@@ -152,44 +227,20 @@ int main()
 
         previousElement = actualElement;
     }
-    elements.push_back(Elemento(previousElement, repeatCounter)); // o ultimo estava de fora
+    //std::cout << std::endl;
+    TipoItem item = geraItem(counter, colors[previousElement], repeatCounter, 0);
+    Insere(item, &lista);
 
-    std::string line1;
-    std::string line2;
-    std::cout << "Matriz:\n";
-    for (auto e : elements)
+    // std::cout << "Lista: " << std::endl;
+    // Imprime(lista);
+
+    if (verificaSequencia(lista))
     {
-        auto it = values.find(e.number);
-        int index = std::distance(values.begin(), it) + 1;
-
-        line1.append(std::to_string(index) + " ");
-        line2.append(std::to_string(e.quantity) + " ");
+        std::cout << "Resultado: Padrao encontrado." << std::endl;
     }
-
-    // removendo os ultimos espacos
-    line1.pop_back();
-    line2.pop_back();
-    std::cout << line1 << "\n";
-    std::cout << line2 << "\n";
-
-    // TRABALHO AEDS
-    std::map<int, int> colors;
-    colors.insert(std::pair<int, int>(1, 0));
-    colors.insert(std::pair<int, int>(2, 128));
-    colors.insert(std::pair<int, int>(3, 255));
-
-    TipoLista lista;
-
-    for (int i = 0; i < elements.size(); i++)
+    else
     {
-        auto e = elements[i];
-
-        TipoItem item;
-        item.Chave = i;
-        item.tipo = colors[e.number];
-        item.numElementos = e.quantity;
-
-        // Insere(elements[i], &lista);
+        std::cout << "Resultado: Padrao nao encontrado." << std::endl;
     }
 
     return 0;
