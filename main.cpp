@@ -9,21 +9,20 @@ Alunos(as):
 Data: 30/06/2022
 
 ****************/
-
 #include <bits/stdc++.h>
 #include <stdlib.h>
 #include <stdio.h>
 #define MAX 100
 
 typedef int TipoChave;
-typedef int Tipo;
+typedef int TipoCor;
 
 typedef struct
 {
     TipoChave Chave;
-    Tipo tipo;
-    int numElementos;
-    double pontoMedio;
+    TipoCor Tipo;
+    int NumElementos;
+    double PontoMedio;
 } TipoItem;
 
 typedef struct TipoCelula *TipoApontador;
@@ -39,7 +38,15 @@ typedef struct
     TipoApontador Primeiro, Ultimo;
 } TipoLista;
 
-/* ========================================================================= */
+// Declaracao das funcoes
+void FLVazia(TipoLista *Lista);
+int Vazia(TipoLista *Lista);
+void Insere(TipoItem x, TipoLista *Lista);
+void Retira(TipoApontador p, TipoLista *Lista, TipoItem *Item);
+TipoItem GeraItem(TipoChave chave, TipoCor tipo, int nElementos, double pontoMedio);
+void Imprime(TipoLista Lista);
+TipoLista PreencheLista(std::string NomeArquivo, std::map<int, int> Colors, TipoLista Lista);
+bool VerificaSequencia(TipoLista lista);
 
 void FLVazia(TipoLista *Lista)
 {
@@ -84,21 +91,57 @@ void Imprime(TipoLista Lista)
     while (Aux != NULL)
     {
         printf("Chave: %d, Numero de elementos: %d, Tipo: %d, Ponto Medio: %.2lf \n",
-               Aux->Item.Chave, Aux->Item.numElementos, Aux->Item.tipo, Aux->Item.pontoMedio);
+               Aux->Item.Chave, Aux->Item.NumElementos, Aux->Item.Tipo, Aux->Item.PontoMedio);
         Aux = Aux->Prox;
     }
 }
 
-TipoItem geraItem(TipoChave chave, Tipo tipo, int nElementos, double pontoMedio)
+TipoItem GeraItem(TipoChave Chave, TipoCor Tipo, int NumElementos, double PontoMedio)
 {
     TipoItem item;
-    item.Chave = chave;
-    item.numElementos = nElementos;
-    item.tipo = tipo;
-    item.pontoMedio = pontoMedio;
+    item.Chave = Chave;
+    item.NumElementos = NumElementos;
+    item.Tipo = Tipo;
+    item.PontoMedio = PontoMedio;
     return item;
 }
 
+TipoLista PreencheLista(std::string NomeArquivo, std::map<int, int> Colors, TipoLista Lista)
+{
+    std::ifstream Arquivo;
+    int N;
+    Arquivo.open(NomeArquivo);
+    Arquivo >> N;
+
+    int ContadorIds = 0;
+    int ElementoAtual;
+    Arquivo >> ElementoAtual;
+    for (int i = 1; i < N; i++)
+    {
+        int ContadorRepeticoes = 1;
+        int ProximoElemento;
+        while (Arquivo >> ProximoElemento)
+        {
+            if (ProximoElemento == ElementoAtual)
+            {
+                ContadorRepeticoes++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        TipoItem Item = GeraItem(ContadorIds, Colors[ElementoAtual], ContadorRepeticoes, 0);
+        Insere(Item, &Lista);
+        ContadorIds++;
+
+        ElementoAtual = ProximoElemento;
+        i = i + ContadorRepeticoes - 1;
+    }
+
+    return Lista;
+}
 /**
  *
  * Se uma
@@ -130,7 +173,7 @@ adicionados, se necessário.
      return pontoMedio;
  } */
 
-bool verificaSequencia(TipoLista lista)
+bool VerificaSequencia(TipoLista lista)
 {
     std::array<int, 5> sequencia = {1, 3, 2, 3, 1};
     int contador = 0;
@@ -140,7 +183,7 @@ bool verificaSequencia(TipoLista lista)
 
     while (Aux != NULL)
     {
-        Tipo tipo = Aux->Item.tipo;
+        TipoCor tipo = Aux->Item.Tipo;
         if (tipo == sequencia[contador])
         {
             contador++;
@@ -167,54 +210,24 @@ bool verificaSequencia(TipoLista lista)
 
 int main()
 {
-    std::map<int, int> colors;
-    colors.insert(std::pair<int, int>(0, 1));
-    colors.insert(std::pair<int, int>(128, 2));
-    colors.insert(std::pair<int, int>(255, 3));
+    std::map<int, int> Colors;
+    Colors.insert(std::pair<int, int>(0, 1));
+    Colors.insert(std::pair<int, int>(128, 2));
+    Colors.insert(std::pair<int, int>(255, 3));
 
-    TipoLista lista;
-    FLVazia(&lista);
+    TipoLista Lista;
+    FLVazia(&Lista);
 
-    std::string nomeArquivo;
+    std::string NomeArquivo;
     std::cout << "Digite o nome do arquivo: ";
-    std::cin >> nomeArquivo;
+    std::cin >> NomeArquivo;
 
-    std::ifstream arquivo;
-    int n;
-    arquivo.open(nomeArquivo);
-    arquivo >> n;
-
-    int contadorIds = 0;
-    int elementoAtual;
-    arquivo >> elementoAtual;
-    for (int i = 1; i < n; i++)
-    {
-        int contadorRepeticoes = 1;
-        int proximoElemento;
-        while (arquivo >> proximoElemento)
-        {
-            if (proximoElemento == elementoAtual)
-            {
-                contadorRepeticoes++;
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        TipoItem item = geraItem(contadorIds, colors[elementoAtual], contadorRepeticoes, 0);
-        Insere(item, &lista);
-        contadorIds++;
-
-        elementoAtual = proximoElemento;
-        i = i + contadorRepeticoes - 1;
-    }
+    Lista = PreencheLista(NomeArquivo, Colors, Lista);
 
     std::cout << "Lista: " << std::endl;
-    Imprime(lista);
+    Imprime(Lista);
 
-    if (verificaSequencia(lista))
+    if (VerificaSequencia(Lista))
     {
         std::cout << "Resultado: Padrao encontrado." << std::endl;
     }

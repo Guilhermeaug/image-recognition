@@ -5,7 +5,7 @@
 
 /* ========================================================================= */
 typedef int TipoChave;
-typedef int Tipo;
+typedef int TipoCor;
 typedef int NumElementos;
 typedef int PontoMedio;
 
@@ -13,8 +13,8 @@ typedef struct
 {
   int Chave;
   /* outros componentes */
-  Tipo tipo;
-  NumElementos numElementos;
+  TipoCor Tipo;
+  NumElementos NumElementos;
   PontoMedio pontoMedio;
 } TipoItem;
 

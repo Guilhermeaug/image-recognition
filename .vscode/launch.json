@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/guilherme/Documentos/Projetos/turbo-octo-enigma",
-      "program": "/home/guilherme/Documentos/Projetos/turbo-octo-enigma/build/Debug/outDebug",
+      "cwd": "/home/guilhermeaug/Documentos/Engenharia/LabAlgoritmosI/turbo-octo-enigma",
+      "program": "/home/guilhermeaug/Documentos/Engenharia/LabAlgoritmosI/turbo-octo-enigma/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
