@@ -1,1 +1,7 @@
-/.vscode/
+*/*         
+!*.cpp 
+!*.c     
+!*.txt     
+!.gitignore #unignore .gitignore
+
+.vscode/
