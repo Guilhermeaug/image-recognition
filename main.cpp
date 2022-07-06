@@ -106,6 +106,21 @@ TipoItem GeraItem(TipoChave Chave, TipoCor Tipo, int NumElementos, double PontoM
     return item;
 }
 
+TipoLista PontoMedio(TipoItem item, TipoLista lista){
+    int p = 0, q = 0;
+    TipoApontador Aux;
+    int pontoMedio;
+    Aux = lista.Primeiro->Prox;
+    while (Aux != NULL)
+    {
+        p=Aux-> Item.PontoMedio;
+        q = (Aux-> Item.NumElementos)-1;
+        Aux = Aux->Prox;
+        Aux-> Item.PontoMedio = q+p/2;
+    }
+    return lista;
+}
+
 TipoLista PreencheLista(std::string NomeArquivo, std::map<int, int> Colors, TipoLista Lista)
 {
     std::ifstream Arquivo;
@@ -115,6 +130,7 @@ TipoLista PreencheLista(std::string NomeArquivo, std::map<int, int> Colors, Tipo
 
     int ContadorIds = 0;
     int ElementoAtual;
+    int prmedio=0, aux=0;
     Arquivo >> ElementoAtual;
     for (int i = 1; i < N; i++)
     {
@@ -128,13 +144,16 @@ TipoLista PreencheLista(std::string NomeArquivo, std::map<int, int> Colors, Tipo
             }
             else
             {
+                aux = prmedio;
                 break;
             }
         }
 
-        TipoItem Item = GeraItem(ContadorIds, Colors[ElementoAtual], ContadorRepeticoes, 0);
+        TipoItem Item = GeraItem(ContadorIds, Colors[ElementoAtual], ContadorRepeticoes, aux);
+        PontoMedio(Item, Lista);
         Insere(Item, &Lista);
         ContadorIds++;
+        prmedio+= ContadorRepeticoes;
 
         ElementoAtual = ProximoElemento;
         i = i + ContadorRepeticoes - 1;
@@ -150,28 +169,6 @@ onde p e q são as posições do início e do fim do segmento. Outros campos pod
 adicionados, se necessário.
 
  */
-/* double PontoMedio(TipoItem item, TipoLista lista){
-//     // encontrar quantos elementos tem até chegar nesse item
-//     // item.chave
-        int p = 0, q = 0;
-        TipoApontador Aux;
-       int pontoMedio;
-       Aux = Lista.Primeiro->Prox;
-        if(lista.Chave == item.Chave)
-        {
-            p->Aux;
-        }
-        while (Aux != NULL)
-        {
-         Aux = Aux->Prox;
-        }
-        if(lista.Chave == item.Chave)
-        {
-            p->Aux;
-        }
-     pontoMedio = q+p/2;
-     return pontoMedio;
- } */
 
 bool VerificaSequencia(TipoLista lista)
 {
