@@ -116,7 +116,7 @@ TipoLista PontoMedio(TipoItem item, TipoLista lista){
         p=Aux-> Item.PontoMedio;
         q = (Aux-> Item.NumElementos)-1;
         Aux = Aux->Prox;
-        Aux-> Item.PontoMedio = q+p/2;
+        item.PontoMedio = q+p/2;
     }
     return lista;
 }
