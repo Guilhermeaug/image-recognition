@@ -358,7 +358,7 @@ int main()
     if (ContemPadraoPistaPorcentagem < 70)
     {
         //std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
-        std::cout << "Resultado:  Pista sem faixa de pedestres" << std::endl;
+        std::cout << "Resultado: Pista com faixa de pedestres" << std::endl;
     }
     else
     {
