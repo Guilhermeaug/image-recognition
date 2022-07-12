@@ -6,7 +6,7 @@ Alunos(as):
     * Diogo Emanuel
     * Guilherme Augusto
 
-Data: 07/07/2022
+Data: 14/07/2022
 
 ****************/
 #include <bits/stdc++.h>
@@ -17,6 +17,7 @@ Data: 07/07/2022
 typedef struct
 {
     bool Encontrado;
+    bool Faixa;
     double PontoMedio;
 } Padrao;
 
@@ -223,6 +224,7 @@ Padrao VerificaSequencia(TipoLista Lista)
 {
     Padrao Padrao;
     std::array<int, 5> Sequencia = {1, 3, 2, 3, 1};
+    std::array<int, 13> Faixa = {1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1};
 
     Padrao = VerificaSequenciaTrio(Lista, std::array<int, 3>{2, 3, 1});
     if (Padrao.Encontrado)
@@ -239,6 +241,7 @@ Padrao VerificaSequencia(TipoLista Lista)
     TipoApontador Aux;
     Aux = Lista.Primeiro->Prox;
     int i = 0;
+    int fp = 0;
 
     while (Aux != NULL)
     {
@@ -262,16 +265,33 @@ Padrao VerificaSequencia(TipoLista Lista)
                 i++;
             }
         }
+        if(Tipo == Faixa[i])
+        {
+            fp++;
+        }
+        else
+        {
+            fp = 0;
+            if (Tipo == Faixa[i])
+            {
+                fp++;
+            }
+        }
 
         if (i == 5)
         {
             Padrao.Encontrado = true;
             return Padrao;
         }
+        if (fp == 13)
+        {
+            Padrao.Faixa = true;
+            return Padrao;
+        }
 
         Aux = Aux->Prox;
     }
-
+    Padrao.Faixa = false;
     Padrao.Encontrado = false;
 
     return Padrao;
@@ -337,24 +357,29 @@ int main()
 
     if (ContemPadraoPistaPorcentagem < 70)
     {
-        std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+        //std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+        std::cout << "Resultado:  Pista sem faixa de pedestres" << std::endl;
     }
     else
     {
         if (CoeficienteVariacao < 10)
         {
-            std::cout << "Resultado: Pista em linha reta." << std::endl;
-        }
-        else
-        {
-            if (PontosMediosLinhas[PontosMediosLinhas.size() - 1] - PontosMediosLinhas[0] < 0)
+            for (auto Lista : Listas)
             {
-                std::cout << "Resultado: Curva a direita." << std::endl;
-            }
-            else
-            {
-                std::cout << "Resultado: Curva a esquerda." << std::endl;
-            }
+                Padrao Padrao = VerificaSequencia(Lista);
+                Padroes.push_back(Padrao);
+
+                if (Padrao.Faixa)
+                {
+                    std::cout << "Resultado: Pista sem faixa de pedestres" << std::endl;
+                    break;
+                }
+                else
+                {
+                    std::cout << "Resultado: Pista com faixa de pedestres" << std::endl;
+                    break;
+                }
+            }   
         }
     }
 
