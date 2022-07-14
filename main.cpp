@@ -1,6 +1,6 @@
 /****************
 
-LAED1 - Projeto (Parte II) - Estimativa do formato da pista
+LAED1 - Projeto (Parte III) - Detecção de Faixa de pedestres em uma imagem
 
 Alunos(as):
     * Diogo Emanuel
@@ -10,26 +10,20 @@ Data: 14/07/2022
 
 ****************/
 #include <bits/stdc++.h>
-#include <stdlib.h>
-#include <stdio.h>
-#define MAX 100
 
 typedef struct
 {
-    bool Encontrado;
-    bool Faixa;
-    double PontoMedio;
-} Padrao;
-
-typedef int TipoChave;
-typedef int TipoCor;
+    bool IsPista = false;
+    bool IsFaixaPedestre = false;
+    double PontoMedio = 0;
+} Perfil;
 
 typedef struct
 {
-    TipoChave Chave;
-    TipoCor Tipo;
+    int Chave;
+    int Tipo;
     int NumElementos;
-    double PontoMedio;
+    double PontoMedio = 0;
 } TipoItem;
 
 typedef struct TipoCelula *TipoApontador;
@@ -43,18 +37,49 @@ typedef struct TipoCelula
 typedef struct
 {
     TipoApontador Primeiro, Ultimo;
+    Perfil Resultado;
 } TipoLista;
 
-// Declaracao das funcoes
+// Definicoes das funcoes
 void FLVazia(TipoLista *Lista);
-int Vazia(TipoLista *Lista);
+int Vazia(TipoLista Lista);
 void Insere(TipoItem x, TipoLista *Lista);
 void Retira(TipoApontador p, TipoLista *Lista, TipoItem *Item);
-TipoItem GeraItem(TipoChave chave, TipoCor tipo, int nElementos, double pontoMedio);
-double CalculaPontoMedio(int p, int q);
 void Imprime(TipoLista Lista);
-std::vector<TipoLista> PreencheListas(std::string NomeArquivo, std::map<int, int> Colors, TipoLista Lista);
-Padrao VerificaSequencia(TipoLista Lista);
+double CalculaPontoMedio(int p, int q);
+TipoItem GeraItem(int Chave, int Tipo, int NumElementos, double PontoMedio);
+std::vector<TipoLista> PreencheListas(std::string NomeArquivo, std::map<int, int> Colors, std::vector<TipoLista> Listas);
+Perfil VerificaSequencia(TipoLista Lista);
+double CalculaMedia(std::vector<double> PontosMedios);
+double CalculaDesvioPadrao(std::vector<double> PontosMedios, double Media);
+
+// Funcoes utilitarias
+double CalculaMedia(std::vector<double> PontosMedios)
+{
+    double Media = 0;
+    for (double PontoMedio : PontosMedios)
+    {
+        Media += PontoMedio;
+    }
+    return Media / PontosMedios.size();
+}
+
+double CalculaDesvioPadrao(std::vector<double> PontosMedios, double Media)
+{
+    double DesvioPadrao = 0;
+    for (double PontoMedio : PontosMedios)
+    {
+        DesvioPadrao += pow(PontoMedio - Media, 2);
+    }
+    return sqrt(DesvioPadrao / PontosMedios.size());
+}
+
+double CalculaPontoMedio(int p, int q)
+{
+    return (p + q) / 2.0;
+}
+
+// Funcoes de manipulacao de listas do ziviani
 void FLVazia(TipoLista *Lista)
 {
     Lista->Primeiro = (TipoApontador)malloc(sizeof(TipoCelula));
@@ -103,20 +128,14 @@ void Imprime(TipoLista Lista)
     }
 }
 
-TipoItem GeraItem(TipoChave Chave, TipoCor Tipo, int NumElementos, double PontoMedio)
+TipoItem GeraItem(int Chave, int Tipo, int NumElementos, double PontoMedio)
 {
-    TipoItem item;
-    item.Chave = Chave;
-    item.NumElementos = NumElementos;
-    item.Tipo = Tipo;
-    item.PontoMedio = PontoMedio;
-    return item;
-}
-
-double CalculaPontoMedio(int p, int q)
-{
-    // std::cout << "p: " << p << " q: " << q << std::endl;
-    return (p + q) / 2.0;
+    TipoItem Item;
+    Item.Chave = Chave;
+    Item.NumElementos = NumElementos;
+    Item.Tipo = Tipo;
+    Item.PontoMedio = PontoMedio;
+    return Item;
 }
 
 std::vector<TipoLista> PreencheListas(std::string NomeArquivo, std::map<int, int> Colors, std::vector<TipoLista> Listas)
@@ -176,145 +195,69 @@ std::vector<TipoLista> PreencheListas(std::string NomeArquivo, std::map<int, int
     return Listas;
 }
 
-Padrao VerificaSequenciaTrio(TipoLista Lista, std::array<int, 3> Sequencia)
+Perfil VerificaSequencia(TipoLista Lista)
 {
-    Padrao Padrao;
-    Padrao.Encontrado = false;
+    Perfil Resultado;
+
+    std::array<int, 5> SequenciaPista = {1, 3, 2, 3, 1};
+    int IndicePista = 0;
+
+    std::array<int, 13> SequenciaFaixaPedestre = {1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1};
+    int IndiceFaixaPedestre = 0;
 
     TipoApontador Aux;
     Aux = Lista.Primeiro->Prox;
-    int i = 0;
 
     while (Aux != NULL)
     {
-        TipoCor Tipo = Aux->Item.Tipo;
+        int Tipo = Aux->Item.Tipo;
         double PontoMedio = Aux->Item.PontoMedio;
 
         if (Tipo == 2)
         {
-            Padrao.PontoMedio = PontoMedio;
+            Resultado.PontoMedio = PontoMedio;
         }
 
-        if (Tipo == Sequencia[i])
+        if (Tipo == SequenciaPista[IndicePista])
         {
-            i++;
+            IndicePista++;
         }
         else
         {
-            i = 0;
-            if (Tipo == Sequencia[i])
+            IndicePista = 0;
+            if (Tipo == SequenciaPista[IndicePista])
             {
-                i++;
+                IndicePista++;
             }
         }
 
-        if (i == 3)
+        if (Tipo == SequenciaFaixaPedestre[IndiceFaixaPedestre])
         {
-            Padrao.Encontrado = true;
-            return Padrao;
+            IndiceFaixaPedestre++;
+        }
+        else
+        {
+            IndiceFaixaPedestre = 0;
+            if (Tipo == SequenciaFaixaPedestre[IndiceFaixaPedestre])
+            {
+                IndiceFaixaPedestre++;
+            }
+        }
+
+        if (IndicePista == 5)
+        {
+            Resultado.IsPista = true;
+        }
+
+        if (IndiceFaixaPedestre == 13)
+        {
+            Resultado.IsFaixaPedestre = true;
         }
 
         Aux = Aux->Prox;
     }
 
-    return Padrao;
-}
-
-Padrao VerificaSequencia(TipoLista Lista)
-{
-    Padrao Padrao;
-    std::array<int, 5> Sequencia = {1, 3, 2, 3, 1};
-    std::array<int, 13> Faixa = {1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1};
-
-    Padrao = VerificaSequenciaTrio(Lista, std::array<int, 3>{2, 3, 1});
-    if (Padrao.Encontrado)
-    {
-        return Padrao;
-    }
-
-    Padrao = VerificaSequenciaTrio(Lista, std::array<int, 3>{1, 3, 2});
-    if (Padrao.Encontrado)
-    {
-        return Padrao;
-    }
-
-    TipoApontador Aux;
-    Aux = Lista.Primeiro->Prox;
-    int i = 0;
-    int fp = 0;
-
-    while (Aux != NULL)
-    {
-        TipoCor Tipo = Aux->Item.Tipo;
-        double PontoMedio = Aux->Item.PontoMedio;
-
-        if (i == 2)
-        {
-            Padrao.PontoMedio = PontoMedio;
-        }
-
-        if (Tipo == Sequencia[i])
-        {
-            i++;
-        }
-        else
-        {
-            i = 0;
-            if (Tipo == Sequencia[i])
-            {
-                i++;
-            }
-        }
-        if(Tipo == Faixa[i])
-        {
-            fp++;
-        }
-        else
-        {
-            fp = 0;
-            if (Tipo == Faixa[i])
-            {
-                fp++;
-            }
-        }
-
-        if (i == 5)
-        {
-            Padrao.Encontrado = true;
-            return Padrao;
-        }
-        if (fp == 13)
-        {
-            Padrao.Faixa = true;
-            return Padrao;
-        }
-
-        Aux = Aux->Prox;
-    }
-    Padrao.Faixa = false;
-    Padrao.Encontrado = false;
-
-    return Padrao;
-}
-
-double CalculaMedia(std::vector<double> PontosMedios)
-{
-    double Media = 0;
-    for (double PontoMedio : PontosMedios)
-    {
-        Media += PontoMedio;
-    }
-    return Media / PontosMedios.size();
-}
-
-double CalculaDesvioPadrao(std::vector<double> PontosMedios, double Media)
-{
-    double DesvioPadrao = 0;
-    for (double PontoMedio : PontosMedios)
-    {
-        DesvioPadrao += pow(PontoMedio - Media, 2);
-    }
-    return sqrt(DesvioPadrao / PontosMedios.size());
+    return Resultado;
 }
 
 int main()
@@ -329,58 +272,69 @@ int main()
     std::cin >> NomeArquivo;
 
     std::vector<TipoLista> Listas;
-    std::vector<Padrao> Padroes;
     std::vector<double> PontosMediosLinhas;
 
     Listas = PreencheListas(NomeArquivo, Colors, Listas);
-
-    for (auto Lista : Listas)
+    for (auto &Lista : Listas)
     {
-        Padrao Padrao = VerificaSequencia(Lista);
-        Padroes.push_back(Padrao);
+        Perfil Resultado = VerificaSequencia(Lista);
+        Lista.Resultado = Resultado;
 
-        if (Padrao.Encontrado)
+        if (Resultado.IsPista)
         {
-            PontosMediosLinhas.push_back(Padrao.PontoMedio);
+            PontosMediosLinhas.push_back(Resultado.PontoMedio);
         }
     }
 
-    double ContemPadraoPistaPorcentagem = (double)std::count_if(Padroes.begin(), Padroes.end(), [](Padrao Padrao)
-                                                                { return Padrao.Encontrado; }) /
-                                          Padroes.size() * 100;
-    // std::cout << "Contem Padrao Pista: " << ContemPadraoPistaPorcentagem << "%" << std::endl;
+    // auto contaPadrao = [](TipoLista Lista)
+    // { return Lista.Resultado.IsPista; };
 
-    double Media, DesvioPadrao, CoeficienteVariacao;
-    Media = CalculaMedia(PontosMediosLinhas);
-    DesvioPadrao = CalculaDesvioPadrao(PontosMediosLinhas, Media);
-    CoeficienteVariacao = (DesvioPadrao / Media) * 100;
+    // double ContemPadraoPistaPorcentagem = (double)std::count_if(Listas.begin(), Listas.end(), contaPadrao) /
+    //                                       PontosMediosLinhas.size() * 100;
+    // // // std::cout << "Contem Padrao Pista: " << ContemPadraoPistaPorcentagem << "%" << std::endl;
 
-    if (ContemPadraoPistaPorcentagem < 70)
+    // double Media, DesvioPadrao, CoeficienteVariacao;
+    // Media = CalculaMedia(PontosMediosLinhas);
+    // DesvioPadrao = CalculaDesvioPadrao(PontosMediosLinhas, Media);
+    // CoeficienteVariacao = (DesvioPadrao / Media) * 100;
+
+    // if (ContemPadraoPistaPorcentagem < 70)
+    // {
+    //     // std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+    // }
+    // else
+    // {
+    //     if (CoeficienteVariacao < 10)
+    //     {
+    //         // std::cout << "Resultado: Formato da pista estimado" << std::endl;
+    //     }
+    //     else
+    //     {
+    //         // std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+    //     }
+    // }
+
+    bool found = false;
+    for (auto Lista : Listas)
     {
-        //std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+        Perfil Resultado = Lista.Resultado;
+        // Imprime(Lista);
+        // std::cout << std::endl;
+
+        if (Resultado.IsFaixaPedestre)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if (found)
+    {
         std::cout << "Resultado: Pista com faixa de pedestres" << std::endl;
     }
     else
     {
-        if (CoeficienteVariacao < 10)
-        {
-            for (auto Lista : Listas)
-            {
-                Padrao Padrao = VerificaSequencia(Lista);
-                Padroes.push_back(Padrao);
-
-                if (Padrao.Faixa)
-                {
-                    std::cout << "Resultado: Pista sem faixa de pedestres" << std::endl;
-                    break;
-                }
-                else
-                {
-                    std::cout << "Resultado: Pista com faixa de pedestres" << std::endl;
-                    break;
-                }
-            }   
-        }
+        std::cout << "Resultado: Pista sem faixa de pedestres" << std::endl;
     }
 
     return 0;
