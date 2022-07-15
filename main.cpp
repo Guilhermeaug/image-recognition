@@ -286,40 +286,37 @@ int main()
         }
     }
 
-    // auto contaPadrao = [](TipoLista Lista)
-    // { return Lista.Resultado.IsPista; };
+    auto contaPadrao = [](TipoLista Lista)
+    { return Lista.Resultado.IsPista; };
 
-    // double ContemPadraoPistaPorcentagem = (double)std::count_if(Listas.begin(), Listas.end(), contaPadrao) /
-    //                                       PontosMediosLinhas.size() * 100;
-    // // // std::cout << "Contem Padrao Pista: " << ContemPadraoPistaPorcentagem << "%" << std::endl;
+    double ContemPadraoPistaPorcentagem = (double)std::count_if(Listas.begin(), Listas.end(), contaPadrao) /
+                                          PontosMediosLinhas.size() * 100;
 
-    // double Media, DesvioPadrao, CoeficienteVariacao;
-    // Media = CalculaMedia(PontosMediosLinhas);
-    // DesvioPadrao = CalculaDesvioPadrao(PontosMediosLinhas, Media);
-    // CoeficienteVariacao = (DesvioPadrao / Media) * 100;
+    double Media, DesvioPadrao, CoeficienteVariacao;
+    Media = CalculaMedia(PontosMediosLinhas);
+    DesvioPadrao = CalculaDesvioPadrao(PontosMediosLinhas, Media);
+    CoeficienteVariacao = (DesvioPadrao / Media) * 100;
 
-    // if (ContemPadraoPistaPorcentagem < 70)
-    // {
-    //     // std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
-    // }
-    // else
-    // {
-    //     if (CoeficienteVariacao < 10)
-    //     {
-    //         // std::cout << "Resultado: Formato da pista estimado" << std::endl;
-    //     }
-    //     else
-    //     {
-    //         // std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
-    //     }
-    // }
+    if (ContemPadraoPistaPorcentagem < 70)
+    {
+        std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+    }
+    else
+    {
+        if (CoeficienteVariacao < 10)
+        {
+            std::cout << "Resultado: Formato da pista estimado" << std::endl;
+        }
+        else
+        {
+            std::cout << "Resultado: Formato da pista nao estimado" << std::endl;
+        }
+    }
 
     bool found = false;
     for (auto Lista : Listas)
     {
         Perfil Resultado = Lista.Resultado;
-        // Imprime(Lista);
-        // std::cout << std::endl;
 
         if (Resultado.IsFaixaPedestre)
         {
